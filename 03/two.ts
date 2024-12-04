@@ -1,4 +1,4 @@
-const text: String = Deno.readTextFileSync("input.txt");
+const text: string = Deno.readTextFileSync("input.txt");
 
 const enables: [number, boolean][] = [];
 for (const match of text.matchAll(/(do|don't)\(\)/g)) {

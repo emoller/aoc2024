@@ -1,7 +1,7 @@
-const text: String = Deno.readTextFileSync("input.txt");
+const text: string = Deno.readTextFileSync("input.txt");
 
 const res = text.split("\n").map((r) => r.split(" ").map(Number));
-let diff = res.map((r) =>
+const diff = res.map((r) =>
   r.map((n, i) => (i == 0 ? 0 : n - r[i - 1])).slice(1)
 );
 
