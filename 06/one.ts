@@ -10,20 +10,22 @@ const headings = [
   [0, 1],
   [-1, 0],
 ];
-let heading = 0;
-let y = 0;
-let x = 0;
-let found = false;
-for (y = 0; y < height && !found; y++) {
-  for (x = 0; x < width; x++) {
-    if (headings_chars.includes(res[y][x])) {
-      heading = headings_chars.indexOf(res[y][x]);
-      found = true;
-      y--;
-      break;
+
+const findStart = (
+  grid: string[][],
+  headings_chars: string
+): [number, number, number] => {
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (headings_chars.includes(grid[y][x])) {
+        return [x, y, headings_chars.indexOf(grid[y][x])];
+      }
     }
   }
-}
+  return [0, 0, 0];
+};
+
+let [x, y, heading] = findStart(res, headings_chars);
 
 while (x >= 0 && x < width && y >= 0 && y < height) {
   res[y][x] = "X";
@@ -38,8 +40,5 @@ while (x >= 0 && x < width && y >= 0 && y < height) {
   }
 }
 
-const sum = res.reduce(
-  (acc, row) => acc + row.reduce((acc, col) => acc + (col === "X" ? 1 : 0), 0),
-  0
-);
+const sum = res.flat().reduce((a, c) => a + (c === "X" ? 1 : 0), 0);
 console.log(sum);
