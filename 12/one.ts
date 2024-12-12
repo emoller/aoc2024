@@ -1,4 +1,4 @@
-const text: string = Deno.readTextFileSync("input-x.txt");
+const text: string = Deno.readTextFileSync("input.txt");
 
 const grid = text.split("\n").map((r) => r.split(""));
 const width = grid[0].length;
@@ -19,59 +19,70 @@ const flood = (x: number, y: number, id: string, region: Coords) => {
   }
 };
 
-const findEdge = (region: Coords): number => {
-  let maxX = -1;
-  let index = -1;
-  for (let i = 0; i < region.length; i++) {
-    const x = region[i][0];
-    if (x > maxX) {
-      maxX = x;
-      index = i;
-    }
-  }
-  return index;
+const getExternal = (region: Coords): Coords => {
+  let minX = region[0][0];
+  let maxX = region[0][0];
+  let minY = region[0][1];
+  let maxY = region[0][1];
+
+  region.forEach(([x, y]) => {
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  });
+
+  minX--;
+  maxX++;
+  minY--;
+  maxY++;
+
+  const regionSet = new Set(region.map(([x, y]) => `${x},${y}`));
+  const visited = new Set<string>();
+  const external: Coords = [];
+
+  const floodFill = (x: number, y: number) => {
+    const key = `${x},${y}`;
+    if (visited.has(key) || x < minX || x > maxX || y < minY || y > maxY)
+      return;
+
+    visited.add(key);
+    if (regionSet.has(key)) external.push([x, y]);
+
+    floodFill(x, y + 1);
+    floodFill(x - 1, y);
+    floodFill(x, y - 1);
+    floodFill(x + 1, y);
+  };
+
+  floodFill(minX, minY);
+
+  return external;
 };
 
-const traceEdge = (region: Coords, index: number): number => {
+const countEdges = (region: Coords): number => {
   const neighbours = new Map<string, number>();
   for (let i = 0; i < region.length; i++)
     neighbours.set(region[i].join(","), i);
-  const hasNeighbour = (x: number, y: number): [boolean, number] => [
-    neighbours.has([x, y].join(",")),
-    neighbours.has([x, y].join(",")) ? neighbours.get([x, y].join(","))! : -1,
-  ];
   const dirs = [
     [0, 1],
     [-1, 0],
     [0, -1],
     [1, 0],
-  ]; // S, W, N, E
+  ];
 
-  let len = 0;
-  let dir = 0;
-  let idx = index;
-  do {
-    let found = false;
-    for (let j = -1; j <= 1; j++) {
-      const d = (dir + j + 4) % 4;
-      const [has, i] = hasNeighbour(
-        region[idx][0] + dirs[d][0],
-        region[idx][1] + dirs[d][1]
-      );
-      if (has) {
-        dir = d;
-        idx = i;
-        found = true;
-        break;
+  let perimeter = 0;
+
+  for (const [x, y] of region) {
+    for (const [dx, dy] of dirs) {
+      const neighbor = [x + dx, y + dy].join(",");
+      if (!neighbours.has(neighbor)) {
+        perimeter++;
       }
     }
-    if (!found) {
-      dir = (dir + 1) % 4;
-    }
-    len++;
-    if (len > 10) break;
-  } while (idx !== index || dir !== 0);
-  return len;
+  }
+
+  return perimeter;
 };
 
 for (let y = 0; y < height; y++) {
@@ -79,11 +90,11 @@ for (let y = 0; y < height; y++) {
     if (grid[y][x] !== ".") {
       const region: [number, number][] = [];
       flood(x, y, grid[y][x], region);
-      const length = traceEdge(region, findEdge(region));
+      const external = getExternal(region);
+      const length = countEdges(external);
       regions.push([region.length, length]);
     }
   }
 }
 
-console.log(grid);
-console.log(regions);
+console.log(regions.reduce((a, v) => a + v[0] * v[1], 0));
