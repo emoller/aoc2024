@@ -1,4 +1,4 @@
-import TinyQueue from "tinyqueue";
+import TinyQueue from "https://esm.sh/tinyqueue@3.0.0";
 
 const text: string = Deno.readTextFileSync("input.txt");
 const sIndex = text.indexOf("S");
@@ -30,7 +30,7 @@ const tryPush = (x: number, y: number, score: number, h: number) => {
 tryPush(start[0], start[1], 0, 1);
 
 while (open.length) {
-  const n = open.pop();
+  const n = open.pop()!;
   if (n.x === end[0] && n.y === end[1]) {
     console.log(n.score);
     break;
