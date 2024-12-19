@@ -1,5 +1,4 @@
-const text: string = Deno.readTextFileSync("input.txt");
-const sections = text.split("\n\n");
+const sections = Deno.readTextFileSync("input.txt").split("\n\n");
 const towels = sections[0].split(", ");
 const designs = sections[1].split("\n");
 
