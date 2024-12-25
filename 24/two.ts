@@ -130,7 +130,7 @@ findswaps();
 
 const graphviz = (): string => {
   const graph = ["digraph RippleCarryAdder {"];
-  for (const [gateName, gate] of gates.entries()) {
+  for (const [gateName, _gate] of gates.entries()) {
     const effectiveGate = swapMap.has(gateName)
       ? swapMap.get(gateName)!
       : gateName;
